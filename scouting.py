@@ -19,7 +19,9 @@ results = reaktor.WSContentCategoryMgmt.getCatalogContentCategoryRoots(token)
 #print json.dumps(results, sort_keys=True, indent=4)
 category_ids = [ el["ID"] for el in results ]
 
-txtr_it.insert(results)
+#txtr_it.insert(results)
+# commented out... 
+# since this datastructure is already a subset of what I'm gathering afterwards
 
 for c_id in category_ids:
     print c_id
