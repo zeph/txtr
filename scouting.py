@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 __author__ = 'zeph'
 import jsonrpclib, json, pymongo, sys,  time,  threading
-maxthreads = 30
+# FIXME / TODO / BUG ...
+# I'm still not convinced about the Singleton
+# ... I see 400 thr running
+maxthreads = 3
 
 jsonrpclib.config.version = 1.0
 reaktor = jsonrpclib.Server('http://staging.txtr.com/json/rpc')
@@ -31,11 +34,29 @@ class ScoutCatalog(threading.Thread):
             results = reaktor.WSContentCategoryMgmt.getContentCategory(token, c_id, False, None, False, 0, -1)
             txtr_it.insert(results)
             mongo_instance.end_request()
+            if len(results["documentIDs"])!=0:
+                thr = ScoutDocuments(results["documentIDs"])
+                thr.start()
             if len(results["childrenIDs"])!=0:
                 thr = ScoutCatalog(results["childrenIDs"])
                 thr.start()
         pool_thr.release()
         print "\n\t%s secs\t%s " % (round(time.time() - start_time,  2),  [str(x) for x in self.category_ids]), 
+
+class ScoutDocuments(threading.Thread):
+    def __init__(self, document_ids = []):
+        print "x", 
+        sys.stdout.flush()
+        threading.Thread.__init__(self)
+        self.document_ids = document_ids
+    def run(self):
+        pool_thr.acquire()
+        start_time = time.time()
+        results = reaktor.WSDocMgmt.getDocuments(token, self.document_ids)
+        txtr_it.insert(results)
+        mongo_instance.end_request()
+        pool_thr.release()
+        print "\n>\t%s secs\t%s " % (round(time.time() - start_time,  2),  [str(x) for x in self.document_ids]), 
         
 pool_thr = threading.BoundedSemaphore(value=maxthreads)
 thr = ScoutCatalog() 
