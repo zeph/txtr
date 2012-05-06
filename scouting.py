@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 __author__ = 'zeph'
 import jsonrpclib, json, pymongo, sys,  time,  threading
-
-# FIXME / TODO 
-# very limited value, cause the locking mechanism seems not to be handled by a singleton
-maxthreads = 3
+maxthreads = 30
 
 jsonrpclib.config.version = 1.0
 reaktor = jsonrpclib.Server('http://staging.txtr.com/json/rpc')
@@ -33,6 +30,7 @@ class ScoutCatalog(threading.Thread):
         for c_id in self.category_ids: 
             results = reaktor.WSContentCategoryMgmt.getContentCategory(token, c_id, False, None, False, 0, -1)
             txtr_it.insert(results)
+            mongo_instance.end_request()
             if len(results["childrenIDs"])!=0:
                 thr = ScoutCatalog(results["childrenIDs"])
                 thr.start()
