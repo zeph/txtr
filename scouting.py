@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 __author__ = 'zeph'
 import jsonrpclib, json, pymongo, sys,  time,  threading
+
+# FIXME / TODO 
+# very limited value, cause the locking mechanism seems not to be handled by a singleton
 maxthreads = 3
 
 jsonrpclib.config.version = 1.0
