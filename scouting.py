@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 __author__ = 'zeph'
 import jsonrpclib, json, pymongo, sys,  time,  threading, xmlrpclib
-maxthreads = 30
+# this is limiting the number of outgoing connections, not the local threads
+# as we have the approach "spawn and forget" ;)
+maxactivethreads = 30
 
 jsonrpclib.config.version = 1.0
-reaktor = jsonrpclib.Server('http://staging.txtr.com/json/rpc')
+reaktor = jsonrpclib.Server('http://api.txtr.com/json/rpc')
 token="txtr.it"
 
 try:
@@ -72,7 +74,7 @@ class Singleton(object):
             cls._instance = threading.Semaphore(*args, **kwargs)
         return cls._instance
 
-pool_thr = Singleton()
+pool_thr = Singleton(value=maxactivethreads)
 thr = ScoutCatalog()
 thr.start()
 thr.join()
