@@ -1,14 +1,20 @@
 #!/usr/bin/env python
 __author__ = 'zeph'
-import jsonrpclib, json, pymongo, sys,  time,  threading
-# FIXME / TODO / BUG ...
-# I'm still not convinced about the Singleton
-# ... I see 400 thr running
-maxthreads = 3
+import jsonrpclib, json, pymongo, sys,  time,  threading, xmlrpclib
+maxthreads = 30
 
 jsonrpclib.config.version = 1.0
 reaktor = jsonrpclib.Server('http://staging.txtr.com/json/rpc')
 token="txtr.it"
+
+try:
+    reaktor.WSLookup.getHost()
+except xmlrpclib.ProtocolError:
+    print " - k, leave it, Reaktor is OFFLINE"
+    exit()
+except KeyError:
+    # http://txtr.com/rest/rpc?service=WSLookup&method=getHost
+    print " - k, yes we know. Failing on WSLookup.getHost(), but the Reaktor is there"
 
 mongo_instance = pymongo.Connection('localhost', 27017)
 mongodb = mongo_instance.test_reaktor_stg
@@ -56,10 +62,18 @@ class ScoutDocuments(threading.Thread):
         txtr_it.insert(results)
         mongo_instance.end_request()
         pool_thr.release()
-        print "\n>\t%s secs\t%s " % (round(time.time() - start_time,  2),  [str(x) for x in self.document_ids]), 
-        
-pool_thr = threading.BoundedSemaphore(value=maxthreads)
-thr = ScoutCatalog() 
+        print "\n>\t%s secs\t%s " % (round(time.time() - start_time,  2),  [str(x) for x in self.document_ids]),
+
+# http://stackoverflow.com/questions/42558/python-and-the-singleton-pattern
+class Singleton(object):
+    _instance = None
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = threading.Semaphore(*args, **kwargs)
+        return cls._instance
+
+pool_thr = Singleton()
+thr = ScoutCatalog()
 thr.start()
 thr.join()
 print
