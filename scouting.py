@@ -9,7 +9,7 @@ MAX_ACTIVE_THREADS = 30
 PAGINATION_LIMIT = 100
 
 jsonrpclib.config.version = 1.0
-reaktor = jsonrpclib.Server('http://api.txtr.com/json/rpc')
+reaktor = jsonrpclib.Server('http://staging.txtr.com/json/rpc')
 token="txtr.it"
 
 try:
