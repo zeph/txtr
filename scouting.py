@@ -71,6 +71,8 @@ class Singleton(object):
     _instance = None
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
+            # Semaphore is actually a function, that is why we can't put it as "object" in the Singleton inheritance
+            # http://stackoverflow.com/questions/2231427/error-when-calling-the-metaclass-bases-function-argument-1-must-be-code-not
             cls._instance = threading.Semaphore(*args, **kwargs)
         return cls._instance
 
