@@ -27,6 +27,11 @@ txtr_it = mongodb["txtr.it"]
 # http://www.hacksparrow.com/the-mongodb-tutorial.html
 txtr_it.remove() # "truncating" the collection
 
+# ensuring uniqueness, of Categories
+txtr_it.ensure_index("ID", unique=True, sparse = True)
+# and Documents, using the "sparse" cause they are in the same "collection"
+txtr_it.ensure_index("documentID", unique=True, sparse = True)
+
 class ScoutCatalog(threading.Thread):
     def __init__(self,  category_ids = []):
         print >> sys.stderr, ".",
