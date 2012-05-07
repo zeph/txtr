@@ -42,7 +42,7 @@ class ScoutCatalog(threading.Thread):
             thr = ScoutCatalog([ el["ID"] for el in results ])
             thr.start()
         for c_id in self.category_ids: 
-            results = reaktor.WSContentCategoryMgmt.getContentCategory(token, c_id, False, None, False, 0, -1)
+            results = reaktor.WSContentCategoryMgmt.getContentCategory(token, c_id, False, None, False, 0, PAGINATION_LIMIT)
             txtr_it.insert(results)
             mongo_instance.end_request()
             if len(results["documentIDs"])!=0:
@@ -50,8 +50,8 @@ class ScoutCatalog(threading.Thread):
                 thr.start()
             if results["size"] > PAGINATION_LIMIT:
                 pages = int(results["size"] / PAGINATION_LIMIT)
-                print pages,
-                for r in xrange(0, pages):
+                for r in xrange(1, pages+1):
+                    print (r, pages),
                     subresults = reaktor.WSContentCategoryMgmt.getContentCategory(token, c_id,
                         False, None, False, r*PAGINATION_LIMIT, PAGINATION_LIMIT)
                     if len(subresults["documentIDs"])!=0:
