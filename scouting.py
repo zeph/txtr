@@ -22,15 +22,15 @@ except KeyError:
     print >> sys.stderr, " - k, yes we know. Failing on WSLookup.getHost(), but the Reaktor is there"
 
 mongo_instance = pymongo.Connection('localhost', 27017)
-mongodb = mongo_instance.test_reaktor_stg
-txtr_it = mongodb["txtr.it"]
-# http://www.hacksparrow.com/the-mongodb-tutorial.html
-txtr_it.remove() # "truncating" the collection
+db = mongo_instance.test_reaktor_stg_it
+
+db.category.remove()
+db.book.remove()
 
 # ensuring uniqueness, of Categories
-txtr_it.ensure_index("ID", unique=True, sparse = True)
+db.category.ensure_index("ID", unique=True, sparse = True)
 # and Documents, using the "sparse" cause they are in the same "collection"
-txtr_it.ensure_index("documentID", unique=True, sparse = True)
+db.book.ensure_index("documentID", unique=True, sparse = True)
 
 class ScoutCatalog(threading.Thread):
     def __init__(self,  category_ids = []):
@@ -48,7 +48,7 @@ class ScoutCatalog(threading.Thread):
             thr.start()
         for c_id in self.category_ids: 
             results = reaktor.WSContentCategoryMgmt.getContentCategory(token, c_id, False, None, False, 0, PAGINATION_LIMIT)
-            txtr_it.insert(results)
+            db.category.insert(results)
             mongo_instance.end_request()
             if len(results["documentIDs"])!=0:
                 thr = ScoutDocuments(results["documentIDs"])
@@ -78,7 +78,7 @@ class ScoutDocuments(threading.Thread):
         pool_thr.acquire()
         start_time = time.time()
         results = reaktor.WSDocMgmt.getDocuments(token, self.document_ids)
-        txtr_it.insert(results)
+        db.book.insert(results)
         mongo_instance.end_request()
         pool_thr.release()
         print >> sys.stderr, "\n>\t%s secs\t%s " % (round(time.time() - start_time,  2),  [str(x) for x in self.document_ids]),
