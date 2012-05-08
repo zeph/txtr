@@ -38,7 +38,8 @@ def get_book():
 	
 @app.route('/book/<book_id>')
 def get_book_id(book_id):
-	b = book.find({"documentID":book_id},{"_id":0})
+	bs = book.find({"documentID":book_id},{"_id":0})
+	b = iter(bs).next()
 	return json.dumps(b, sort_keys=True, indent=4)
 
 @app.route('/category')
@@ -48,4 +49,4 @@ def get_category():
 
 if __name__ == "__main__":
 	app.debug = True
-	app.run()
+	app.run(host='0.0.0.0')
