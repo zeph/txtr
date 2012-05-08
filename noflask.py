@@ -35,6 +35,11 @@ def index():
 def get_book():
 	b = book.find_one({},{"_id":0})
 	return json.dumps(b, sort_keys=True, indent=4)
+	
+@app.route('/book/<book_id>')
+def get_book_id(book_id):
+	b = book.find({"documentID":book_id},{"_id":0})
+	return json.dumps(b, sort_keys=True, indent=4)
 
 @app.route('/category')
 def get_category():
