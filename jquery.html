@@ -5,13 +5,29 @@
     <title>Demo</title>
   </head>
   <body>
-    <a href="http://jquery.com/">jQuery</a>
     <script src="http://code.jquery.com/jquery.min.js"></script>
     <script>
- $("a").click(function(event){
-   event.preventDefault();
-   $(this).hide("slow");
- });
+function json_process(data){  
+    alert(data);  
+    console.info(data);  
+}  
+var reaktor = 'http://staging.txtr.com/json/rpc'
+var request = {};
+request.method = 'WSReaktorMgmt.getNatures';
+request.params = [];
+var json_request = JSON.stringify(request);
+/*
+$.ajax({
+  url: reaktor,
+  type:"GET",
+  data: ,
+  //contentType:"application/json; charset=utf-8",
+  dataType:"json",
+  success: json_process
+})
+*/
+
+$.get(reaktor, "json="+json_request+"&callback=?", json_process);
     </script>
   </body>
 </html>
