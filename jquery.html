@@ -8,11 +8,10 @@
     <a href="http://jquery.com/">jQuery</a>
     <script src="http://code.jquery.com/jquery.min.js"></script>
     <script>
-$(document).ready(function(){
-  $("a").click(function(event){
-    alert("Thanks for visiting!");
-  });
-});
+ $("a").click(function(event){
+   event.preventDefault();
+   $(this).hide("slow");
+ });
     </script>
   </body>
 </html>
